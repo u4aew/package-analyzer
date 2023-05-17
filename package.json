@@ -1,0 +1,19 @@
+{
+  "name": "package-analyzer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "bin": {
+    "package-analyzer": "./index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "ejs": "^3.1.6",
+    "ora": "^5.4.1"
+  }
+}
