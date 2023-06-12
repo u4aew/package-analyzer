@@ -22,6 +22,8 @@ const githubToken = 'your github token here';
 getDependencyReport(packageJsonPath, outputHtmlPath, githubToken);
 ```
 
+![example](img/example.jpg "example")
+
 This will create an HTML report at the specified `outputHtmlPath`.
 
 ## Contributing
