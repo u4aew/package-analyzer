@@ -1,0 +1,27 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type":"commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "tsc index.ts && node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "package-analyzer": "1.0.0",
+    "@types/ejs": "^3.1.2",
+    "@types/node": "^20.3.0",
+    "copyfiles": "^2.4.1",
+    "typescript": "^5.1.3"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.2",
+    "@types/node": "^20.3.0",
+    "copyfiles": "^2.4.1",
+    "typescript": "^5.1.3"
+  }
+}

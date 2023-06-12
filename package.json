@@ -2,18 +2,32 @@
   "name": "package-analyzer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "copy-ejs": "copyfiles -f \"src/template/reportTemplate.ejs\" dist/template",
+    "build": "tsc && npm run copy-ejs"
   },
   "author": "",
-  "bin": {
-    "package-analyzer": "./index.js"
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
   },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
   "license": "ISC",
   "dependencies": {
     "axios": "^0.24.0",
     "ejs": "^3.1.6",
-    "ora": "^5.4.1"
+    "ora": "^5.4.1",
+    "tsc-alias": "1.7.0"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.2",
+    "@types/node": "^20.3.0",
+    "copyfiles": "^2.4.1",
+    "typescript": "^5.1.3"
   }
 }

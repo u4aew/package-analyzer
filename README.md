@@ -1,46 +1,33 @@
-# Package Analyzer
+# NPM Dependency Reporter
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/your-username/package-analyzer/blob/main/LICENSE)
-
-Package Analyzer is an npm library that analyzes the dependencies of a project and generates an HTML report with information about their popularity, such as the number of stars, open issues, and the last update date of their respective GitHub repositories.
-
-## Installation
-
-You can install the library globally or as a development dependency in your project.
-
-### Global installation
-
-```bash
-npm install -g package-analyzer
-```
-
-### Installation as a development dependency
-
-```bash
-npm install --save-dev package-analyzer
-```
+This project is a tool for analyzing dependencies from a `package.json` file and generating an HTML report that provides information about each dependency's repository, including the star count, open issue count, and last updated date.
 
 ## Usage
 
-The library can be used programmatically or through the command line.
+The main function `getDependencyReport` requires three parameters:
 
-### Programmatically
+- `packageJsonPath`: The path to the `package.json` file to analyze.
+- `outputHtmlPath`: The path where the HTML report will be saved.
+- `githubToken`: Your GitHub personal access token. This is required to use GitHub's API to fetch repository information.
+
+Here's an example of how you could use this function:
 
 ```javascript
-const { getDependencyReport } = require('package-analyzer');
+import getDependencyReport from './path/to/your/file';
 
-const packageJsonPath = './path/to/your/project/package.json';
-const outputHtmlPath = './path/to/save/report.html';
+const packageJsonPath = './path/to/your/package.json';
+const outputHtmlPath = './path/to/output/report.html';
+const githubToken = 'your github token here';
 
-getDependencyReport(packageJsonPath, outputHtmlPath);
+getDependencyReport(packageJsonPath, outputHtmlPath, githubToken);
 ```
 
-Replace `packageJsonPath` with the path to your project's `package.json` file, and `outputHtmlPath` with the desired path to save the generated HTML report.
+This will create an HTML report at the specified `outputHtmlPath`.
 
-### Command Line
+## Contributing
 
-```bash
-package-analyzer <path/to/package.json> <path/to/save/report.html>
-```
+Contributions are always welcome. Please make a pull request.
 
-Replace `<path/to/package.json>` with the path to your project's `package.json` file, and `<path/to/save/report.html>` with the desired path to save the generated HTML report.
+## License
+
+This project is licensed under the terms of the MIT license.
