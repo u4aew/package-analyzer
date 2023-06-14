@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/u4aew/package-analyzer"
+    "url": "https://github.com/u4aew/package-json-analyzer"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
