@@ -8,13 +8,19 @@ interface RepositoryInfo {
     stars: number;
     issues: number;
     updated: string;
+    homepage: string;
+    npmUrl: string;
+    license: string;
 }
 
-async function getPackageInfo(packageName: string): Promise<string | undefined> {
+async function getPackageInfo(packageName: string): Promise<{repoUrl: string, npmUrl: string} | undefined> {
     const url = `https://registry.npmjs.org/${packageName}`;
     try {
         const response = await axios.get(url);
-        return response.data.repository.url;
+        return {
+            repoUrl: response.data.repository.url,
+            npmUrl: `https://www.npmjs.com/package/${packageName}`
+        };
     } catch (error) {
         console.error(`Error fetching package info for ${packageName}:`, (error as Error).message);
     }
@@ -33,18 +39,18 @@ async function getRepositoryInfoFromURL(repoUrl: string, githubToken: string): P
             },
         });
 
-        const { stargazers_count, open_issues_count, updated_at } = response.data;
-        return { stars: stargazers_count, issues: open_issues_count, updated: updated_at };
+        const { stargazers_count, open_issues_count, updated_at, html_url, license } = response.data;
+        return { stars: stargazers_count, issues: open_issues_count, updated: updated_at, homepage: html_url, npmUrl: `https://www.npmjs.com/package/${repo}`, license: license ? license.spdx_id : 'None' };
     } catch (error) {
         console.error(`Error fetching repository info from URL ${repoUrl}:`, (error as Error).message);
     }
 }
 
-async function generateHTMLReport(report: { [key: string]: RepositoryInfo }): Promise<string | undefined> {
+async function generateHTMLReport(report: { [key: string]: RepositoryInfo }, packagesWithRiskyLicenses: { [key: string]: RepositoryInfo } ): Promise<string | undefined> {
     try {
         const templatePath = path.join(__dirname, 'template', 'reportTemplate.ejs');
         const template = fs.readFileSync(templatePath, 'utf-8');
-        const html = ejs.render(template, { report });
+        const html = ejs.render(template, { report, packagesWithRiskyLicenses });
         return html;
     } catch (error) {
         console.error('Error generating HTML report:', (error as Error).message);
@@ -59,14 +65,21 @@ async function getDependencyReport(packageJsonPath: string, outputHtmlPath: stri
         const totalDependencies = Object.keys(dependencies).length;
         let completedDependencies = 0;
 
+        const riskyLicenses = ['GPL', 'AGPL', 'SSPL'];
+        const packagesWithRiskyLicenses: { [key: string]: RepositoryInfo } = {};
+
         const spinner = ora('Analyzing dependencies').start();
 
         for (const dependency of Object.keys(dependencies)) {
-            const repoUrl = await getPackageInfo(dependency);
-            if (repoUrl) {
-                const repoInfo = await getRepositoryInfoFromURL(repoUrl, githubToken);
+            const urls = await getPackageInfo(dependency);
+            if (urls && urls.repoUrl) {
+                const repoInfo = await getRepositoryInfoFromURL(urls.repoUrl, githubToken);
                 if (repoInfo) {
-                    report[dependency] = repoInfo;
+                    if (riskyLicenses.includes(repoInfo.license)) {
+                        packagesWithRiskyLicenses[dependency] = repoInfo;
+                    }
+                    // @ts-ignore
+                    report[dependency] = { ...repoInfo, npmUrl: urls.npmUrl };
                 } else {
                     console.warn(`Incomplete repository information found for ${dependency}`);
                 }
@@ -80,7 +93,7 @@ async function getDependencyReport(packageJsonPath: string, outputHtmlPath: stri
 
         spinner.succeed('Dependency analysis complete');
 
-        const htmlReport = await generateHTMLReport(report);
+        const htmlReport = await generateHTMLReport(report, packagesWithRiskyLicenses);
         if (htmlReport) {
             fs.writeFileSync(outputHtmlPath, htmlReport, 'utf-8');
             console.log(`Report generated at: ${outputHtmlPath}`);

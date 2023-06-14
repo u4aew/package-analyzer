@@ -22,7 +22,10 @@ function getPackageInfo(packageName) {
         const url = `https://registry.npmjs.org/${packageName}`;
         try {
             const response = yield axios_1.default.get(url);
-            return response.data.repository.url;
+            return {
+                repoUrl: response.data.repository.url,
+                npmUrl: `https://www.npmjs.com/package/${packageName}`
+            };
         }
         catch (error) {
             console.error(`Error fetching package info for ${packageName}:`, error.message);
@@ -41,20 +44,20 @@ function getRepositoryInfoFromURL(repoUrl, githubToken) {
                     Authorization: `Bearer ${githubToken}`,
                 },
             });
-            const { stargazers_count, open_issues_count, updated_at } = response.data;
-            return { stars: stargazers_count, issues: open_issues_count, updated: updated_at };
+            const { stargazers_count, open_issues_count, updated_at, html_url, license } = response.data;
+            return { stars: stargazers_count, issues: open_issues_count, updated: updated_at, homepage: html_url, npmUrl: `https://www.npmjs.com/package/${repo}`, license: license ? license.spdx_id : 'None' };
         }
         catch (error) {
             console.error(`Error fetching repository info from URL ${repoUrl}:`, error.message);
         }
     });
 }
-function generateHTMLReport(report) {
+function generateHTMLReport(report, packagesWithRiskyLicenses) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const templatePath = path_1.default.join(__dirname, 'template', 'reportTemplate.ejs');
             const template = fs_1.default.readFileSync(templatePath, 'utf-8');
-            const html = ejs_1.default.render(template, { report });
+            const html = ejs_1.default.render(template, { report, packagesWithRiskyLicenses });
             return html;
         }
         catch (error) {
@@ -70,13 +73,19 @@ function getDependencyReport(packageJsonPath, outputHtmlPath, githubToken) {
             const report = {};
             const totalDependencies = Object.keys(dependencies).length;
             let completedDependencies = 0;
+            const riskyLicenses = ['GPL', 'AGPL', 'SSPL'];
+            const packagesWithRiskyLicenses = {};
             const spinner = (0, ora_1.default)('Analyzing dependencies').start();
             for (const dependency of Object.keys(dependencies)) {
-                const repoUrl = yield getPackageInfo(dependency);
-                if (repoUrl) {
-                    const repoInfo = yield getRepositoryInfoFromURL(repoUrl, githubToken);
+                const urls = yield getPackageInfo(dependency);
+                if (urls && urls.repoUrl) {
+                    const repoInfo = yield getRepositoryInfoFromURL(urls.repoUrl, githubToken);
                     if (repoInfo) {
-                        report[dependency] = repoInfo;
+                        if (riskyLicenses.includes(repoInfo.license)) {
+                            packagesWithRiskyLicenses[dependency] = repoInfo;
+                        }
+                        // @ts-ignore
+                        report[dependency] = Object.assign(Object.assign({}, repoInfo), { npmUrl: urls.npmUrl });
                     }
                     else {
                         console.warn(`Incomplete repository information found for ${dependency}`);
@@ -89,7 +98,7 @@ function getDependencyReport(packageJsonPath, outputHtmlPath, githubToken) {
                 spinner.text = `Analyzing dependencies (${completedDependencies}/${totalDependencies})`;
             }
             spinner.succeed('Dependency analysis complete');
-            const htmlReport = yield generateHTMLReport(report);
+            const htmlReport = yield generateHTMLReport(report, packagesWithRiskyLicenses);
             if (htmlReport) {
                 fs_1.default.writeFileSync(outputHtmlPath, htmlReport, 'utf-8');
                 console.log(`Report generated at: ${outputHtmlPath}`);
