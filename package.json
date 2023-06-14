@@ -1,23 +1,27 @@
 {
   "name": "package-analyzer",
   "version": "1.0.0",
-  "description": "",
+  "description": "A tool for analyzing npm dependencies and generating a detailed report.",
   "type": "commonjs",
   "scripts": {
     "copy-ejs": "copyfiles -f \"src/template/reportTemplate.ejs\" dist/template",
     "build": "tsc && npm run copy-ejs"
   },
-  "author": "",
+  "author": "u4aew",
+  "keywords": ["npm", "dependencies", "analysis", "report"],
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "sideEffects": false,
   "files": [
     "dist"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "^0.24.0",
     "ejs": "^3.1.6",
@@ -29,5 +33,12 @@
     "@types/node": "^20.3.0",
     "copyfiles": "^2.4.1",
     "typescript": "^5.1.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/u4aew/package-analyzer"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   }
 }
