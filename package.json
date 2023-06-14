@@ -1,5 +1,5 @@
 {
-  "name": "package-analyzer",
+  "name": "package-json-analyzer",
   "version": "1.0.0",
   "description": "A tool for analyzing npm dependencies and generating a detailed report.",
   "type": "commonjs",
