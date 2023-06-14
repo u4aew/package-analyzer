@@ -1,4 +1,4 @@
-import getDependencyReport from 'package-analyzer';
+import getDependencyReport from 'package-json-analyzer';
 
 const initApp = async () => {
     try {

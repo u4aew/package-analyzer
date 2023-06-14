@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "package-json-analyzer": "^1.0.2",
     "@babel/core": "^7.17.2",
     "@babel/preset-env": "^7.16.11",
     "@types/node": "17.0.10",
